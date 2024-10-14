@@ -1,0 +1,23 @@
+html,body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    z-index: -9;
+    background: rgba(44, 41, 33, 0.5);
+
+}
+
+canvas {
+    border: 2px solid white;
+    background-image: url('/static/image/background.webp');
+    background-position: center;
+    background-size: cover;
+}
+/* body{
+    background-image: url('background-2.webp');
+    background-color: rgba(44, 41, 33, 0.5);
+    background-position: center;
+    background-size:cover;
+    background-repeat: no-repeat;
+} */
