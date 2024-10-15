@@ -1,9 +1,9 @@
 let words = ['python', 'java', 'ide'];
 let wordsInGame = []; // Aquí se almacenarán objetos con la palabra y su texto correspondiente
 let currentWord = '';
-
+let position = 0; // position
 export class Game extends Phaser.Scene {
-    
+
     constructor() {
         super({ key: 'game' });
     }
@@ -14,8 +14,8 @@ export class Game extends Phaser.Scene {
     }
 
     create(){
-        this.add.image(this.sys.game.config.width/2, this.sys.game.config.height/2, 'space');
-        this.gameoverImage = this.add.image(this.sys.game.config.width/2, this.sys.game.config.height-50, 'spaceship');
+        // this.add.image(this.sys.game.config.width/2, this.sys.game.config.height/2, 'space');
+        this.spaceship = this.add.image(this.sys.game.config.width/2, this.sys.game.config.height-50, 'spaceship');
 
         // Loop para generar palabras aleatorias cada 10 segundos
         this.time.addEvent({
@@ -26,6 +26,16 @@ export class Game extends Phaser.Scene {
         });
 
         this.input.keyboard.on('keydown', this.keyPress, this);
+        
+        // agregar una linea recta 
+        this.graphics = this.add.graphics();
+        this.graphics.lineStyle(2, 0xff0000); // Establecer grosor y color de la línea
+        this.graphics.beginPath();
+        this.graphics.moveTo(this.spaceship.x, this.spaceship.y); // Punto de inicio de la línea
+        if (wordsInGame.length > 0) {
+            this.graphics.lineTo(wordsInGame[position].text.x, wordsInGame[position].text.y); // Punto final de la línea
+        }// Punto final de la línea
+        this.graphics.strokePath();
     }
 
     generateWord(){
@@ -34,8 +44,7 @@ export class Game extends Phaser.Scene {
 
         // Guardar objeto con la palabra y su texto
         wordsInGame.push({ word: word, text: wordText });
-        console.log(word);
-        console.log(wordsInGame);
+
 
         // Función para que caigan en el eje y 
         this.tweens.add({
@@ -49,33 +58,30 @@ export class Game extends Phaser.Scene {
         });
     }
 
-    
 
     // Evaluar si la tecla presionada coincide con la primera letra de alguna de las palabras 
     keyPress(event){
-        console.log("Letra presionada: " + event.key);
         if (currentWord == 0) {
-        for (let i = 0; i < wordsInGame.length; i++) {
-            if (wordsInGame[i].word.startsWith(event.key)) {
-                console.log("Coincide con la primera letra de la palabra: " + wordsInGame[i].word);
-                currentWord = wordsInGame[i].word;
-            }
-                // Eliminar la primera letra de la palabra
-                const updatedWord = currentWord.substring(1);
-
-                // Actualizar el arreglo
-                wordsInGame[i].word = updatedWord;
-
-                // Actualizar el texto en pantalla
-                wordsInGame[i].text.setText(updatedWord);
-
-                // Si la palabra está vacía después de eliminar la letra, puedes eliminarla
-                if (updatedWord.length === 0) {
-                    wordsInGame[i].text.destroy(); // Eliminar texto de la pantalla
-                    wordsInGame.splice(i, 1); // Eliminar de wordsInGame
+            for (const [index, element] of wordsInGame.entries()) {
+                if (element.word.startsWith(event.key)) {
+                    currentWord = element.word;
+                    position = index;
+                    wordsInGame[position].text.setFill('#000')
+                    break;
                 }
+            }
+        }
+        if (event.key == currentWord[0]) {
+            // Eliminar la primera letra de la palabra
+            currentWord = currentWord.substring(1);
 
-                // break; // Salir del bucle después de encontrar una coincidencia
+            // Actualizar el texto en pantalla
+            wordsInGame[position].text.setText(currentWord);
+
+            // Si la palabra está vacía después de eliminar la letra, puedes eliminarla
+            if (currentWord.length === 0) {
+                wordsInGame[position].text.destroy(); // Eliminar texto de la pantalla
+                wordsInGame.splice(position, 1); // Eliminar de wordsInGame
             }
         }
     }
