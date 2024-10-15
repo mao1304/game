@@ -54,13 +54,14 @@ export class Game extends Phaser.Scene {
     // Evaluar si la tecla presionada coincide con la primera letra de alguna de las palabras 
     keyPress(event){
         console.log("Letra presionada: " + event.key);
+        if (currentWord == 0) {
         for (let i = 0; i < wordsInGame.length; i++) {
             if (wordsInGame[i].word.startsWith(event.key)) {
                 console.log("Coincide con la primera letra de la palabra: " + wordsInGame[i].word);
-                // Eliminar la primera letra de la palabra
                 currentWord = wordsInGame[i].word;
-                
-                const updatedWord = wordsInGame[i].word.substring(1);
+            }
+                // Eliminar la primera letra de la palabra
+                const updatedWord = currentWord.substring(1);
 
                 // Actualizar el arreglo
                 wordsInGame[i].word = updatedWord;
