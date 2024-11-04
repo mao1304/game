@@ -1,7 +1,7 @@
 let words = ['python', 'java', 'ide'];
 let wordsInGame = []; // Aquí se almacenarán objetos con la palabra y su texto correspondiente
 let currentWord = '';
-let position = 0; // posición actual
+let position = -1; // posición inicial
 
 export class Game extends Phaser.Scene {
     constructor() {
@@ -12,19 +12,19 @@ export class Game extends Phaser.Scene {
     preload() {
         this.load.image('space', '/static/image/space.jpeg');
         this.load.image('spaceship', '/static/image/spaceship-2.webp');
-        this.load.image('bullet', '/static/image/paloma-2.webp'); // Carga la imagen de la bala
-        this.load.image('enemy', '/static/image/paloma-2.webp'); // Carga la imagen de la bala
+        this.load.image('bullet', '/static/image/Pop-Cat.webp'); // Carga la imagen de la bala
+        this.load.image('enemy', '/static/image/paloma-2.webp'); // Carga la imagen del enemigo
     }
 
     create() {
-        // Crear la nave espacial
-        this.add.image(this.sys.game.config.width/2, this.sys.game.config.height/2, 'space');
+        // Crear el fondo del espacio y la nave espacial
+        this.add.image(this.sys.game.config.width / 2, this.sys.game.config.height / 2, 'space');
         this.spaceship = this.add.image(this.sys.game.config.width / 2, this.sys.game.config.height - 50, 'spaceship');
 
-        // Crear el grupo de balaside
+        // Crear el grupo de balas
         this.bullets = new Bullets(this);
 
-        // Crear un evento para generar palabras aleatorias cada 3 segundos
+        // Crear un evento para generar palabras aleatorias cada 4 segundos
         this.time.addEvent({
             delay: 4000,
             callback: this.generateWord,
@@ -47,25 +47,24 @@ export class Game extends Phaser.Scene {
         this.graphics.moveTo(this.spaceship.x, this.spaceship.y); // Punto de inicio de la línea
 
         // Dibujar la línea hacia la palabra seleccionada, si existe
-        if (wordsInGame.length > 0 && wordsInGame[position]) {
-            this.graphics.lineTo(wordsInGame[position].text.x + 30, wordsInGame[position].text.y + 30); // Punto final de la línea
-        }
+        // if (wordsInGame.length > 0 && wordsInGame[position]) {
+        //     this.graphics.lineTo(wordsInGame[position].container.x, wordsInGame[position].container.y); // Punto final de la línea
+        // }
 
-        this.graphics.strokePath();
+        // this.graphics.strokePath();
     }
 
     generateWord() {
         const word = Phaser.Utils.Array.GetRandom(words);
-        // const wordText = this.add.text(Phaser.Math.Between(50, 470), -30, word, { fontSize: '32px', fill: '#fff' });
-        const wordText = this.add.text(-100, 15, word, { fontSize: '32px', fill: '#fff' }); // Posición relativa al container
+        const wordText = this.add.text(0,0, word, { fontSize: '32px', fill: '#fff' }); // Posición relativa al contenedor
+        const wordIcon = this.add.image(50, 50, 'enemy').setScale(0.5); // Posición relativa al contenedor
 
-        const wordIcon = this.add.image(-30, 0, 'enemy').setScale(0.5); // Posición relativa al container
-    
         // Crear un contenedor que agrupe la imagen y el texto
         const wordContainer = this.add.container(Phaser.Math.Between(50, 470), -30, [wordIcon, wordText]);
-        // Guardar objeto con la palabra y su texto
-        // wordsInGame.push({ word: word, text: wordText });
+
+        // Guardar el objeto con la palabra y su contenedor
         wordsInGame.push({ word: word, container: wordContainer, text: wordText });
+
         // Hacer que las palabras caigan en el eje y
         this.tweens.add({
             targets: wordContainer,
@@ -73,7 +72,7 @@ export class Game extends Phaser.Scene {
             duration: 20000,
             ease: 'Linear',
             onComplete: function () {
-                wordText.destroy();
+                wordContainer.destroy(); 
             }
         });
     }
@@ -89,25 +88,21 @@ export class Game extends Phaser.Scene {
                 }
             }
         }
-        if (event.key === currentWord[0]) {
 
-            this.bullets.fireBullet(this.spaceship.x, this.spaceship.y, wordsInGame[position].text.x, wordsInGame[position].text.y);
+        if (event.key === currentWord[0] && currentWord !== '') {
+            // Disparar una bala hacia la palabra seleccionada
+            this.bullets.fireBullet(this.spaceship.x, this.spaceship.y, wordsInGame[position].container.x-20, wordsInGame[position].container.y-20);
+
             // Eliminar la primera letra de la palabra
-
-            //agrega un delay  de un segundo antes de eliminar la primera letra
             currentWord = currentWord.substring(1);
-
-            // Actualizar el texto en pantalla
             wordsInGame[position].text.setText(currentWord);
 
-            // Disparar una bala hacia la palabra seleccionada
-
-            // Si la palabra está vacía después de eliminar la letra, puedes eliminarla
+            // Si la palabra está vacía después de eliminar la letra, eliminar el contenedor completo
             if (currentWord.length === 0) {
-                wordsInGame[position].text.destroy(); // Eliminar texto de la pantalla
-                wordsInGame.splice(position, 1); // Eliminar de wordsInGame
+                wordsInGame[position].container.destroy();
+                wordsInGame.splice(position, 1); // Eliminar del array de palabras
                 currentWord = ''; // Restablecer currentWord
-                position = 0; // Restablecer posición
+                position = -1; // Restablecer la posición
             }
         }
     }
@@ -125,7 +120,7 @@ class Bullet extends Phaser.Physics.Arcade.Sprite {
         this.setVisible(true);
 
         // Calcular la velocidad para mover la bala hacia el objetivo
-        this.scene.physics.moveTo(this, targetX, targetY, 1000);
+        this.scene.physics.moveTo(this, targetX, targetY, 1500);
     }
 
     preUpdate(time, delta) {
