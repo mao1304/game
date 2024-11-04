@@ -17,6 +17,11 @@ export class Game extends Phaser.Scene {
     }
 
     create() {
+        this.gameOver = false;
+        wordsInGame = []; // Limpiar el array de palabras en juego
+        currentWord = ''; // Restablecer la palabra actual
+        position = -1; // Restablecer la posición // Marca el juego como terminado
+        console.log("Game scene started"); 
         // Crear el fondo del espacio y la nave espacial
         this.add.image(this.sys.game.config.width / 2, this.sys.game.config.height / 2, 'space');
         this.spaceship = this.add.image(this.sys.game.config.width / 2, this.sys.game.config.height - 50, 'spaceship');
@@ -46,15 +51,18 @@ export class Game extends Phaser.Scene {
         this.graphics.beginPath();
         this.graphics.moveTo(this.spaceship.x, this.spaceship.y); // Punto de inicio de la línea
 
-        // Dibujar la línea hacia la palabra seleccionada, si existe
-        // if (wordsInGame.length > 0 && wordsInGame[position]) {
-        //     this.graphics.lineTo(wordsInGame[position].container.x, wordsInGame[position].container.y); // Punto final de la línea
-        // }
+        if (this.gameOver) return; // Evita que el juego siga actualizando si ya terminó
 
-        // this.graphics.strokePath();
+        wordsInGame.forEach(({ container }) => {
+            // Verifica si el contenedor de la palabra ha pasado el límite inferior del canvas
+            if (container.y >= this.sys.game.config.height) {
+                this.gameOver = true; // Marca el juego como terminado
+                this.scene.start('GameOverScene'); // Cambia a la escena de "Game Over"
+            }
+        });
     }
-
     generateWord() {
+        this.gameOver = false;
         const word = Phaser.Utils.Array.GetRandom(words);
         const wordText = this.add.text(0,0, word, { fontSize: '32px', fill: '#fff' }); // Posición relativa al contenedor
         const wordIcon = this.add.image(50, 50, 'enemy').setScale(0.5); // Posición relativa al contenedor
@@ -69,11 +77,11 @@ export class Game extends Phaser.Scene {
         this.tweens.add({
             targets: wordContainer,
             y: this.sys.game.config.height,
-            duration: 20000,
+            duration: 2000,
             ease: 'Linear',
-            onComplete: function () {
-                wordContainer.destroy(); 
-            }
+            // onComplete:() => {
+            //     this.scene.start('GameOverScene');
+            // }
         });
     }
 

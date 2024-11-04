@@ -9,7 +9,7 @@ html,body {
 }
 
 canvas {
-    border: 2px solid white;
+    border: 2px solid rgb(251, 0, 0);
     background-image: url('/static/image/background.webp');
     background-position: center;
     background-size: cover;
