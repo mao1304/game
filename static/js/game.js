@@ -29,9 +29,11 @@ export class Game extends Phaser.Scene {
         this.load.image('spaceship', '/static/image/spaceship-2.webp');
         this.load.image('bullet', '/static/image/Pop-Cat.webp');
         this.load.image('enemy', '/static/image/paloma-2.webp');
+        this.load.audio('shot', '/static/audio/shot.ogg');
     }
 
     create() {
+        // this.scene.start('BootScene');
         this.gameOver = false;
         wordsInGame = [];
         enteredWords = [];
@@ -40,7 +42,7 @@ export class Game extends Phaser.Scene {
         position = -1;
         score = 0;
         timer = 0;
-
+        this.shotSound = this.sound.add('shot', { volume: 0.5 });
         console.log("Game scene started");
 
         // Crear el fondo del espacio y la nave espacial
@@ -200,6 +202,7 @@ class Bullet extends Phaser.Physics.Arcade.Sprite {
 class Bullets extends Phaser.Physics.Arcade.Group {
     constructor(scene) {
         super(scene.physics.world, scene);
+        this.scene = scene;
         this.createMultiple({
             frameQuantity: 5,
             key: 'bullet',
@@ -213,6 +216,7 @@ class Bullets extends Phaser.Physics.Arcade.Group {
         const bullet = this.getFirstDead(false);
         if (bullet) {
             bullet.fire(x, y, targetX, targetY);
+            this.scene.shotSound.play();
         }
     }
 }
