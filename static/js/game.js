@@ -1,15 +1,16 @@
 const words = [
     'import', 'java',  'util',  'scanner',
-    'public', 'class', 'sumanumeros', 
-    'public', 'static', 'void', 'main',  'string', 'args', 
-     'int', 'n1',  'n2',  'suma', 
-    'scanner', 'teclado', 'new', 'scanner',  'system',  'in', 
-    'system',  'out',  'print', 'introduzca', 'primer', 'numero:',
-    'n1', 'teclado',  'nextInt', 
-    'system',  'out',  'print', '"introduzca', 'segundo', 'numero:', 
-    'suma', 'n1', 'n2',
-    'system',  'out',  'println', '"La', 'suma', 'de', 'n1',  'mas', 'n2',  'es',  'suma', 
+    // 'public', 'class', 'sumanumeros', 
+    // 'public', 'static', 'void', 'main',  'string', 'args', 
+    //  'int', 'n1',  'n2',  'suma', 
+    // 'scanner', 'teclado', 'new', 'scanner',  'system',  'in', 
+    // 'system',  'out',  'print', 'introduzca', 'primer', 'numero:',
+    // 'n1', 'teclado',  'nextInt', 
+    // 'system',  'out',  'print', '"introduzca', 'segundo', 'numero:', 
+    // 'suma', 'n1', 'n2',
+    // 'system',  'out',  'println', '"La', 'suma', 'de', 'n1',  'mas', 'n2',  'es',  'suma', 
   ];
+  const originalWords = words.slice();
 let wordsInGame = []; // Palabras que están cayendo en el juego
 let enteredWords = []; // Palabras que el jugador ha ingresado correctamente
 let wordsTextRight = []; // Palabras que se mostrarán en el lado derecho
@@ -33,6 +34,8 @@ export class Game extends Phaser.Scene {
     }
 
     create() {
+        words.length = 0;
+        words.push(...originalWords);
         // this.scene.start('BootScene');
         this.gameOver = false;
         wordsInGame = [];
@@ -127,34 +130,52 @@ export class Game extends Phaser.Scene {
                 }
             }
         }
-
+    
         if (event.key === currentWord[0] && currentWord !== '') {
             this.bullets.fireBullet(this.spaceship.x, this.spaceship.y, wordsInGame[position].container.x - 20, wordsInGame[position].container.y - 20);
-
+    
             currentWord = currentWord.substring(1);
             wordsInGame[position].text.setText(currentWord);
-
+    
             if (currentWord.length === 0) {
                 // Agregar la palabra a enteredWords
                 enteredWords.push(wordsInGame[position].word);
-
-                // Eliminar la palabra del arreglo de palabras en juego
+    
+                // Eliminar la palabra del arreglo de palabras en juego y destruir su contenedor
                 wordsInGame[position].container.destroy();
                 wordsInGame.splice(position, 1);
-
+    
+                // Eliminar la palabra del arreglo de palabras en el lado derecho
+                const wordIndexRight = wordsTextRight.indexOf(enteredWords[enteredWords.length - 1]);
+                if (wordIndexRight !== -1) {
+                    wordsTextRight.splice(wordIndexRight, 1);
+                }
+    
+                // Eliminar la palabra del arreglo original de palabras (words)
+                const wordIndex = words.indexOf(enteredWords[enteredWords.length - 1]);
+                if (wordIndex !== -1) {
+                    words.splice(wordIndex, 1);
+                }
+    
                 // Actualizar el puntaje
                 score += 10;
                 this.scoreText.setText('Puntos: ' + score);
-
+    
                 // Actualizar el texto de la derecha
                 this.updateRightText();
-
+    
+                // Verificar si no quedan palabras
+                if (words.length === 0) {
+                    this.scene.start('WinGameScene', { score: score, time: timer });
+                    return;
+                }
+    
                 currentWord = '';
                 position = -1;
             }
         }
     }
-
+    
     updateTimer() {
         timer += 1;
         this.timerText.setText('Tiempo: ' + timer);
@@ -220,3 +241,5 @@ class Bullets extends Phaser.Physics.Arcade.Group {
         }
     }
 }
+
+

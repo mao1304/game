@@ -1,12 +1,13 @@
 import { BootScene } from './base.js';
 import { MenuScene } from './menu.js';
 import { Game } from './game.js';
-import { GameOverScene } from './gameOver.js'; // Importa la escena de Game Over
+import { GameOverScene } from './gameOver.js'; 
+import { WinGameScene } from './winGame.js';
 const config = {
     type: Phaser.AUTO,
     width:1080,
     height: 768,
-    scene: [BootScene, MenuScene, Game, GameOverScene],
+    scene: [BootScene, MenuScene, Game, GameOverScene,WinGameScene],
     physics: {
         default: 'arcade',
         arcade: {
