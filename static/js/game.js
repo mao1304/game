@@ -2,6 +2,8 @@ let words = ['python', 'java', 'ide'];
 let wordsInGame = []; // Aquí se almacenarán objetos con la palabra y su texto correspondiente
 let currentWord = '';
 let position = -1; // posición inicial
+let score = 0; // Contador de puntos
+let timer = 0; // Contador de tiempo
 
 export class Game extends Phaser.Scene {
     constructor() {
@@ -20,8 +22,11 @@ export class Game extends Phaser.Scene {
         this.gameOver = false;
         wordsInGame = []; // Limpiar el array de palabras en juego
         currentWord = ''; // Restablecer la palabra actual
-        position = -1; // Restablecer la posición // Marca el juego como terminado
+        position = -1; // Restablecer la posición
+        score = 0; // Inicializar el contador de puntos
+        timer = 0; // Inicializar el contador de tiempo
         console.log("Game scene started"); 
+
         // Crear el fondo del espacio y la nave espacial
         this.add.image(this.sys.game.config.width / 2, this.sys.game.config.height / 2, 'space');
         this.spaceship = this.add.image(this.sys.game.config.width / 2, this.sys.game.config.height - 50, 'spaceship');
@@ -42,6 +47,18 @@ export class Game extends Phaser.Scene {
 
         // Crear el objeto gráfico para dibujar la línea
         this.graphics = this.add.graphics();
+
+        // Crear texto para el puntaje y el tiempo
+        this.scoreText = this.add.text(16, 16, 'Puntos: 0', { fontSize: '32px', fill: '#fff' });
+        this.timerText = this.add.text(16, 50, 'Tiempo: 0', { fontSize: '32px', fill: '#fff' });
+
+        // Actualizar el contador de tiempo cada segundo
+        this.time.addEvent({
+            delay: 1000,
+            callback: this.updateTimer,
+            callbackScope: this,
+            loop: true
+        });
     }
 
     update() {
@@ -61,10 +78,11 @@ export class Game extends Phaser.Scene {
             }
         });
     }
+
     generateWord() {
         this.gameOver = false;
         const word = Phaser.Utils.Array.GetRandom(words);
-        const wordText = this.add.text(0,0, word, { fontSize: '32px', fill: '#fff' }); // Posición relativa al contenedor
+        const wordText = this.add.text(0, 0, word, { fontSize: '32px', fill: '#fff' }); // Posición relativa al contenedor
         const wordIcon = this.add.image(50, 50, 'enemy').setScale(0.5); // Posición relativa al contenedor
 
         // Crear un contenedor que agrupe la imagen y el texto
@@ -79,9 +97,6 @@ export class Game extends Phaser.Scene {
             y: this.sys.game.config.height,
             duration: 2000,
             ease: 'Linear',
-            // onComplete:() => {
-            //     this.scene.start('GameOverScene');
-            // }
         });
     }
 
@@ -99,7 +114,7 @@ export class Game extends Phaser.Scene {
 
         if (event.key === currentWord[0] && currentWord !== '') {
             // Disparar una bala hacia la palabra seleccionada
-            this.bullets.fireBullet(this.spaceship.x, this.spaceship.y, wordsInGame[position].container.x-20, wordsInGame[position].container.y-20);
+            this.bullets.fireBullet(this.spaceship.x, this.spaceship.y, wordsInGame[position].container.x - 20, wordsInGame[position].container.y - 20);
 
             // Eliminar la primera letra de la palabra
             currentWord = currentWord.substring(1);
@@ -109,10 +124,17 @@ export class Game extends Phaser.Scene {
             if (currentWord.length === 0) {
                 wordsInGame[position].container.destroy();
                 wordsInGame.splice(position, 1); // Eliminar del array de palabras
+                score += 10; // Incrementar el puntaje
+                this.scoreText.setText('Puntos: ' + score); // Actualizar el texto del puntaje
                 currentWord = ''; // Restablecer currentWord
                 position = -1; // Restablecer la posición
             }
         }
+    }
+
+    updateTimer() {
+        timer += 1; // Incrementar el contador de tiempo
+        this.timerText.setText('Tiempo: ' + timer); // Actualizar el texto del tiempo
     }
 }
 
