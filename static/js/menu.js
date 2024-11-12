@@ -23,6 +23,11 @@ export class MenuScene extends Phaser.Scene {
 
         // Agregar un botón para iniciar el juego
         const startButton = this.add.image(this.sys.game.config.width / 2, 250, 'startButton').setInteractive();
+            this.add.text(this.sys.game.config.width / 2, 300, 'Jugar', {
+            fontSize: '48px',
+            fill: '#000',  // Puedes cambiar el color aquí
+            align: 'center'
+        }).setOrigin(0.5); 
 
         // Manejar el evento de clic en el botón de inicio
         startButton.on('pointerdown', () => {

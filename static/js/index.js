@@ -4,7 +4,7 @@ import { Game } from './game.js';
 import { GameOverScene } from './gameOver.js'; // Importa la escena de Game Over
 const config = {
     type: Phaser.AUTO,
-    width:512,
+    width:1080,
     height: 768,
     scene: [BootScene, MenuScene, Game, GameOverScene],
     physics: {
